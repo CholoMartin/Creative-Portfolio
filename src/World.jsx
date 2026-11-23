@@ -12,7 +12,7 @@ import Clouds from './Clouds'
 export const LOW = matchMedia('(pointer: coarse)').matches || innerWidth < 768 || (navigator.hardwareConcurrency || 8) <= 4
 
 // ---- tweakables ----
-export const COL = { white: '#ffffff', cube: '#fff4ea', gold: '#ffc857', glow: '#ffb347', plate: '#c4574a', petal: '#ffb3cf', magic: '#c8a8ff', pink: '#ff9ad0' }
+export const COL = { white: '#ffffff', cube: '#c5a3ff', gold: '#ffc857', glow: '#ffb347', plate: '#c4574a', petal: '#ffb3cf', magic: '#c8a8ff', pink: '#ff9ad0' }
 const T = { tiles: 0.3, tilesEnd: 2.9, drop: 3.0, ready: 4.3, zoom: 4.0 } // intro timeline (seconds)
 const CUBE = 0.56
 
@@ -57,7 +57,7 @@ function Sim({ store, api, cb }) {
 }
 
 /* ---- floating platforms: ONE sandstone for the path and the pads (one instanced mesh) + a few moss patches ---- */
-export const STONE = { top: '#d1cbc5', side: '#c4beb5', ledge: '#d4cec2', moss: '#7f9f58', mossLt: '#98b46a' }
+export const STONE = { top: '#d1cbc5', side: '#c4beb5', ledge: '#d4cec2', grass: '#a0c978', moss: '#7f9f58', mossLt: '#98b46a' }
 export const stoneTex = () => { // faint speckle + a couple of hairline cracks, greyscale so it only darkens the stone colour
   const c = document.createElement('canvas'); c.width = c.height = 128
   const g = c.getContext('2d'); g.fillStyle = '#fff'; g.fillRect(0, 0, 128, 128)
@@ -170,7 +170,7 @@ function Islands({ store }) {
   const G = useMemo(() => decorGeometries(), [])
   const mat = useMemo(() => new THREE.MeshStandardMaterial({ vertexColors: true, flatShading: true, roughness: 0.9 }), [])
   const slabGeo = useMemo(() => new THREE.CylinderGeometry(1, 1, 0.3, 7), [])
-  const slabMat = useMemo(() => new THREE.MeshStandardMaterial({ color: '#cfe0bd', flatShading: true, roughness: 0.9 }), [])
+  const slabMat = useMemo(() => new THREE.MeshStandardMaterial({ color: STONE.grass, flatShading: true, roughness: 0.9 }), [])
   const R = useMemo(() => {
     const out = PAD_AT.map((at) => ({ x: CELLS[at].x, z: CELLS[at].z, y: -0.9, r: 1.75, h: 2.4 + hash(at, 1) * 1.2 }))
     CELLS.forEach((c, i) => {
@@ -394,7 +394,7 @@ function Cube({ store }) {
       <group ref={g} visible={false}>
         <mesh ref={m} castShadow>
           <boxGeometry args={[CUBE, CUBE, CUBE]} />
-          <meshStandardMaterial color={COL.cube} roughness={0.5} emissive="#ffd9c0" emissiveIntensity={0.12} />
+          <meshStandardMaterial color={COL.cube} roughness={0.5} emissive="#7954c8" emissiveIntensity={0.2} />
         </mesh>
       </group>
       <mesh ref={blob} rotation-x={-Math.PI / 2}>
@@ -445,29 +445,32 @@ function Rig({ store }) {
     const dt = Math.min(dtr, 0.05), S = store, k = K.current
     const base = clamp(Math.min(size.width, size.height) / 8, 44, 92)
     const zi = easeIO(clamp((S.t - 0.2) / T.zoom))
-    const zoom = base * (0.42 + 0.58 * zi) * (1 + 0.8 * (S.fx ? S.fx.camK : 0))
+    const zoom = base * (0.42 + 0.58 * zi) * (1 + 0.8 * (S.fx ? S.fx.camK : 0)) * (S.panelZoom ? 1.28 : 1)
     tmp.copy(S.pose.pos).lerp(S.ahead.pos, 0.4).setY(0).multiplyScalar(zi) // from level centre to the cube
     const ck = S.fx ? S.fx.camK : 0
     if (ck > 0) tmp.lerp(PORTAL_CORE, ck * 0.85) // portal cinematic: slide toward the gate
     const a = 1 - Math.exp(-5 * dt), wide = size.width >= 800
-    k.off.x += ((S.panelOpen && wide ? Math.min(420, size.width * 0.4) / 2 / zoom : 0) - k.off.x) * a
-    k.off.y += ((S.panelOpen && !wide ? (size.height * 0.2) / (0.577 * zoom) : 0) - k.off.y) * a
+    k.off.x += ((S.panelOpen && S.panelPan && wide ? Math.min(720, size.width * 0.48) / 2 / zoom : 0) - k.off.x) * a
+    k.off.y += ((S.panelOpen && S.panelPan && !wide ? (size.height * 0.29) / (0.577 * zoom) : 0) - k.off.y) * a
     tmp.addScaledVector(V.r, k.off.x).addScaledVector(V.f, -k.off.y)
     if (!k.init) { k.look.copy(tmp); k.init = true } else k.look.lerp(tmp, a)
     camera.position.set(k.look.x + 10, 10, k.look.z + 10)
     camera.lookAt(k.look)
-    if (Math.abs(camera.zoom - zoom) > 0.01) { camera.zoom = zoom; camera.updateProjectionMatrix() }
+    const zoomEase = 1 - Math.exp(-3.2 * dt)
+    if (Math.abs(camera.zoom - zoom) > 0.01) { camera.zoom += (zoom - camera.zoom) * zoomEase; camera.updateProjectionMatrix() }
   })
   return null
 }
 
 // The intro's whole state lives in one store that App owns, so leaving for the Creative Dimension and coming back restores it as it was.
 export const makeStore = () => ({
-  ...newSimState(), t: matchMedia('(prefers-reduced-motion: reduce)').matches ? 6 : 0, pose: newPose(), ahead: newPose(), panelOpen: false, fx: null, seq: null, trail: null,
+  ...newSimState(), t: matchMedia('(prefers-reduced-motion: reduce)').matches ? 6 : 0, pose: newPose(), ahead: newPose(), panelOpen: false, panelZoom: false, panelPan: false, fx: null, seq: null, trail: null,
 })
 
-export default function World({ api, cb, panelOpen, store }) {
+export default function World({ api, cb, panelOpen, panelZoom, panelPan, store }) {
   store.panelOpen = panelOpen
+  store.panelZoom = panelOpen && panelZoom
+  store.panelPan = panelOpen && panelPan
   return (
     <>
       {/* low sunset light: pink sky bounce, lavender ground bounce, warm gold sun */}

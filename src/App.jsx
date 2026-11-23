@@ -185,7 +185,7 @@ export default function App() {
   return (
     <div className={'app' + (touch ? ' touch' : '') + (ready ? ' ready' : '')}>
       <Canvas orthographic shadows flat dpr={[1, LOW ? 1.5 : 2]} camera={{ position: [10, 10, 10], zoom: 40, near: 0.1, far: 200 }} gl={{ alpha: true, antialias: !LOW, powerPreference: 'high-performance' }}>
-        {inIntro ? <World api={api} cb={cb} panelOpen={open} store={store.current} /> : <Hub V={V} cb={hubCb} api={hubApi} labels={labels} ui={ui} />}
+        {inIntro ? <World api={api} cb={cb} panelOpen={open} panelZoom={!!(active && CHECKPOINTS.indexOf(active) >= 0 && CHECKPOINTS.indexOf(active) <= 3)} panelPan={!!(active && CHECKPOINTS.indexOf(active) >= 1 && CHECKPOINTS.indexOf(active) <= 3)} store={store.current} /> : <Hub V={V} cb={hubCb} api={hubApi} labels={labels} ui={ui} />}
       </Canvas>
       <div className="vignette" />
 
@@ -224,7 +224,7 @@ export default function App() {
         </>
       )}
 
-      <aside className={'panel' + (last?.kind === 'about' ? ' about-panel' : '') + (open ? ' open' : '')} role="dialog" aria-labelledby="cp-title" aria-hidden={!open} {...(open ? {} : { inert: '' })}>
+      <aside className={'panel' + (last?.kind === 'about' ? ' about-panel' : '') + (last && CHECKPOINTS.indexOf(last) >= 1 && CHECKPOINTS.indexOf(last) <= 3 ? ' detail-panel' : '') + (open ? ' open' : '')} role="dialog" aria-labelledby="cp-title" aria-hidden={!open} {...(open ? {} : { inert: '' })}>
         {last && (
           <>
             <button className="x" onClick={close} aria-label="Close">×</button>

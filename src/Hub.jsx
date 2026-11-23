@@ -277,18 +277,18 @@ function Ground({ K, V }) {
   )
 }
 /* ---------- far-off decorative islands (reference: pagoda, sakura, a glowing torii) ---------- */
-const FAR_UV = [[-10.5, 3.5, 'pagoda', 1.5], [-9, -3.2, 'sakura', 1.2], [10, 4.4, 'shrine', 1.4], [9.6, -2.2, 'torii', 1.3], [-4.5, 11, 'sakura', 1.4], [5, 10.5, 'pagoda', 1.5], [-13, 8, 'sakura', 1.2], [13.5, 9.5, 'sakura', 1.3], [0, 14, 'shrine', 1.4]]
+const FAR_UV = [[-11, 2.5, 'pagoda', 1.15], [11, 2.5, 'shrine', 1.15], [-8.5, 10, 'sakura', 1.05], [8.5, 10, 'torii', 1.05]]
 function FarIslands({ K }) {
   const g = useRef(), G = decorGeometries(), dm = decorMat()
   const portalMat = useMemo(() => new THREE.MeshBasicMaterial({ color: '#ff9ad0', map: soft(), transparent: true, opacity: 0.8, blending: THREE.AdditiveBlending, depthWrite: false }), [])
-  const items = useMemo(() => (LOW ? FAR_UV.slice(0, 6) : FAR_UV).map(([u, v, type, r], i) => ({ p: uv(u, v), type, r, y: -2 - hash(i, 4) * 2.5, i })), [])
+  const items = useMemo(() => FAR_UV.map(([u, v, type, r], i) => ({ p: uv(u, v), type, r, y: -2 - hash(i, 4) * 2.5, i })), [])
   useFrame(({ clock }) => { const e = easeOut(clamp((K.t - 0.3) / 1.6)); g.current.visible = e > 0.001; g.current.position.y = -(1 - e) * 7 + Math.sin(clock.elapsedTime * 0.5) * 0.12 })
   return (
     <group ref={g}>
       {items.map((o) => (
         <group key={o.i} position={[o.p.x, o.y, o.p.z]}>
           <mesh geometry={G.islandRock} position-y={-0.15} scale={[o.r, 2.2 + hash(o.i, 3) * 1.6, o.r]} material={dm} rotation-y={hash(o.i, 9) * 6} />
-          <Cy p={[0, -0.07, 0]} r={o.r * 1.04} h={0.3} c="#cfe0bd" seg={7} />
+          <Cy p={[0, -0.07, 0]} r={o.r * 1.04} h={0.3} c={STONE.grass} seg={7} />
           <mesh geometry={G[o.type === 'torii' ? 'portal' : o.type]} material={dm} position-y={0.08} scale={o.type === 'torii' ? 0.9 : 1.5} rotation-y={o.type === 'torii' ? -0.6 : hash(o.i, 5) * 6.28} />
           {o.type === 'torii' && <mesh position={[0.1, 0.62, 0.05]} rotation-y={-0.6} material={portalMat}><planeGeometry args={[1.5, 1.5]} /></mesh>}
         </group>
@@ -371,7 +371,7 @@ function HubCube({ K, V, cb }) {
       <group ref={g} visible={false}>
         <mesh ref={m} castShadow>
           <boxGeometry args={[CUBE_S, CUBE_S, CUBE_S]} />
-          <meshStandardMaterial color="#fff4ea" roughness={0.5} emissive="#ffd9c0" emissiveIntensity={0.12} />
+          <meshStandardMaterial color="#c5a3ff" roughness={0.5} emissive="#7954c8" emissiveIntensity={0.2} />
           {FACE && <group ref={eyes} position={[0, 0.04, CUBE_S / 2 + 0.004]}>{[-0.15, 0.15].map((x) => <mesh key={x} material={e} position={[x, 0, 0]}><planeGeometry args={[0.07, 0.12]} /></mesh>)}</group>}
         </mesh>
       </group>

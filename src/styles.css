@@ -39,6 +39,21 @@ canvas { display:block; }
   pointer-events:none; visibility:hidden; transform:translate(40px, -50%); opacity:0;
   transition:transform .55s cubic-bezier(.2,.8,.2,1), opacity .4s ease, visibility 0s linear .55s; }
 .panel.open { pointer-events:auto; visibility:visible; transform:translate(0,-50%); opacity:1; transition-delay:0s; }
+.panel.detail-panel { right:3vw; width:min(720px, 52vw); height:min(790px, 88vh); max-height:88vh; display:flex; flex-direction:column; padding:36px 38px 30px; }
+.detail-panel .content { flex:1; min-height:0; overflow-y:auto; }
+.detail-panel .tag { font-size:12px; }
+.detail-panel h2 { font-size:32px; }
+.detail-panel .roles, .detail-panel .links { gap:14px; }
+.detail-panel .roles li { padding:16px 18px; }
+.detail-panel .r1 { font-size:16px; }
+.detail-panel .r1 span, .detail-panel .r2 { font-size:14px; }
+.detail-panel .roles p { font-size:15px; line-height:1.65; }
+.detail-panel .grp h3 { font-size:13px; }
+.detail-panel .chips span { padding:8px 13px; font-size:14px; }
+.detail-panel .body { font-size:16px; line-height:1.75; }
+.detail-panel .links a { padding:14px 16px; font-size:15px; }
+.detail-panel .links a span { font-size:14px; }
+.detail-panel .go { padding:15px 18px; font-size:14px; }
 .panel.about-panel { right:50%; width:min(760px, calc(100vw - 80px)); max-height:84vh; padding:34px 40px 30px; transform:translate(calc(50% + 40px), -50%); }
 .panel.about-panel.open { transform:translate(50%, -50%); }
 .about-panel .content { display:grid; grid-template-columns:210px minmax(0,1fr); grid-template-rows:auto 1fr; align-items:center; column-gap:34px; row-gap:18px; }
@@ -91,6 +106,8 @@ canvas { display:block; }
   .panel.open { transform:translateY(0); }
   .panel.about-panel { left:12px; right:12px; bottom:max(12px, env(safe-area-inset-bottom)); width:auto; max-height:78vh; padding:24px 20px 18px; transform:translateY(40px); }
   .panel.about-panel.open { transform:translateY(0); }
+  .panel.detail-panel { left:12px; right:12px; bottom:max(12px, env(safe-area-inset-bottom)); width:auto; height:auto; max-height:72vh; padding:24px 20px 18px; transform:translateY(40px); }
+  .panel.detail-panel.open { transform:translateY(0); }
   .about-panel .content { grid-template-columns:1fr; grid-template-rows:auto; gap:16px; }
   .about-panel .who { display:flex; grid-column:1; align-items:center; gap:14px; margin:0; }
   .about-panel .avatar { width:104px; height:132px; border-radius:54px 54px 14px 14px; }
