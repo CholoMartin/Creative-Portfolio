@@ -6,6 +6,7 @@ import * as THREE from 'three'
 import { decorGeometries } from './decor'
 import Clouds from './Clouds'
 import { LOW, Dust, soft, clamp, easeOut, hash, STONE, stoneTex, tileGeo, beamMaterial } from './World'
+import { LIGHT } from './grade'
 import { CATS } from './hubData'
 
 const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches
@@ -439,8 +440,8 @@ function Hub({ V, cb, api, labels, ui }) {
   })
   return (
     <>
-      <hemisphereLight args={['#ffe6ef', '#b4a2d6', 0.85]} />
-      <directionalLight position={[14, 13, 5]} intensity={1.2} color="#ffc99a" castShadow
+      <hemisphereLight args={[LIGHT.hemi.sky, LIGHT.hemi.ground, LIGHT.hemi.intensity]} />
+      <directionalLight position={LIGHT.sun.position} intensity={LIGHT.sun.intensity} color={LIGHT.sun.color} castShadow
         shadow-mapSize={LOW ? [1024, 1024] : [2048, 2048]} shadow-bias={-0.0006} shadow-normalBias={0.02}
         shadow-camera-left={-14} shadow-camera-right={14} shadow-camera-top={14} shadow-camera-bottom={-14} shadow-camera-near={1} shadow-camera-far={60} />
       <Ground K={K} V={V} />

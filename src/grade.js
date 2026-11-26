@@ -8,8 +8,8 @@ import * as THREE from 'three'
 // Light rig. Sun = soft gold (not orange), a little lower than before so shadows lengthen; the sky/ground fill is warm cream and warm
 // rose-mauve (was pink / cool lavender), which is what makes the shadows read as naturally warm and soft instead of purple-grey.
 export const LIGHT = {
-  sun: { color: '#ffe0b4', intensity: 1.35, position: [14, 11.5, 6] },
-  hemi: { sky: '#fff1ea', ground: '#cdb0bc', intensity: 1.1 },
+  sun: { color: '#ffd49a', intensity: 1.3, position: [12, 9, 7] },
+  hemi: { sky: '#fff0dc', ground: '#c5a39a', intensity: 1.05 },
 }
 
 // Colour grade: [saturation multiplier, lightness shift, hue shift in degrees], applied in perceptual (sRGB) HSL, so each colour keeps its identity.
