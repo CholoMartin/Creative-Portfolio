@@ -8,6 +8,8 @@ import { newSimState, stepSim, release } from './sim'
 import { stepPortalSeq, PORTAL_CORE, TRAIL_N } from './portal'
 import { decorGeometries } from './decor'
 import Clouds from './Clouds'
+import Bloom from './Bloom'
+import { LIGHT, gradePalette } from './grade'
 
 export const LOW = matchMedia('(pointer: coarse)').matches || innerWidth < 768 || (navigator.hardwareConcurrency || 8) <= 4
 
@@ -57,7 +59,8 @@ function Sim({ store, api, cb }) {
 }
 
 /* ---- floating platforms: ONE sandstone for the path and the pads (one instanced mesh) + a few moss patches ---- */
-export const STONE = { top: '#d1cbc5', side: '#c4beb5', ledge: '#d4cec2', grass: '#a0c978', moss: '#7f9f58', mossLt: '#98b46a' }
+export const STONE = gradePalette({ top: '#d1cbc5', side: '#c4beb5', ledge: '#d4cec2', grass: '#a0c978', moss: '#7f9f58', mossLt: '#98b46a' }, // (colour-graded by grade.js)
+  { top: 'stone', side: 'stone', ledge: 'stone', grass: 'green', moss: 'green', mossLt: 'green' })
 export const stoneTex = () => { // faint speckle + a couple of hairline cracks, greyscale so it only darkens the stone colour
   const c = document.createElement('canvas'); c.width = c.height = 128
   const g = c.getContext('2d'); g.fillStyle = '#fff'; g.fillRect(0, 0, 128, 128)
@@ -473,15 +476,16 @@ export default function World({ api, cb, panelOpen, panelZoom, panelPan, store }
   store.panelPan = panelOpen && panelPan
   return (
     <>
-      {/* low sunset light: pink sky bounce, lavender ground bounce, warm gold sun */}
-      <hemisphereLight args={['#ffe6ef', '#b4a2d6', 0.8]} />
-      <directionalLight position={[14, 13, 5]} intensity={1.2} color="#ffc99a" castShadow
+      {/* golden-hour light (tune in grade.js): soft gold sun, warm cream sky bounce and warm rose-mauve ground bounce that fills the shadows */}
+      <hemisphereLight args={[LIGHT.hemi.sky, LIGHT.hemi.ground, LIGHT.hemi.intensity]} />
+      <directionalLight position={LIGHT.sun.position} intensity={LIGHT.sun.intensity} color={LIGHT.sun.color} castShadow
         shadow-mapSize={LOW ? [1024, 1024] : [2048, 2048]} shadow-bias={-0.0006} shadow-normalBias={0.02}
         shadow-camera-left={-14} shadow-camera-right={14} shadow-camera-top={14} shadow-camera-bottom={-14} shadow-camera-near={1} shadow-camera-far={60} />
       <Sim store={store} api={api} cb={cb} />
       <Platforms store={store} />
       <Islands store={store} />
       <Decor store={store} />
+      <Bloom store={store} />
       {CHECKPOINTS.map((cp) => <Marker key={cp.id} cp={cp} store={store} />)}
       <Portal store={store} />
       <PortalFX store={store} />

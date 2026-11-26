@@ -3,8 +3,10 @@
 // so each type renders as a single instanced draw call. No textures, no extra dependencies.
 import * as THREE from 'three'
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js'
+import { grade, gradePalette } from './grade'
 
-export const C = {
+// (colour-graded once at load by grade.js: greener greens, warmer wood, richer stone and blossoms; the rest is untouched)
+export const C = gradePalette({
   leaf: '#5cb868', leafDk: '#3d9456', leafLt: '#8ccf7a', grass: '#86c36f', pine: '#3a7d50', pineLt: '#4f9a62',
   pink: '#ffb3cf', pinkLt: '#ffd6e5', pinkDk: '#ff93bb',
   wood: '#bb7c4c', woodDk: '#8e5a34', woodLt: '#dba76d',
@@ -12,7 +14,10 @@ export const C = {
   stone: '#cdbfa6', stoneDk: '#a89a82', stoneLt: '#e0d5bf',
   red: '#cf4b3e', black: '#2e2b36', slate: '#5b4f73', slateDk: '#3f3656', plaster: '#fbefdc', gold: '#ffd27a', terra: '#d98860', soil: '#6b4a35',
   water: '#6cc3f0', waterLt: '#a4defa', bamboo: '#8bc851', bambooDk: '#639c3a', moss: '#7f9f58', mossLt: '#98b46a', koi: '#ff8f4d',
-}
+}, {
+  leaf: 'green', leafDk: 'green', leafLt: 'green', grass: 'green', pine: 'green', pineLt: 'green', bamboo: 'green', bambooDk: 'green', moss: 'green', mossLt: 'green',
+  pink: 'pink', pinkLt: 'pink', pinkDk: 'pink', wood: 'wood', woodDk: 'wood', woodLt: 'wood', stone: 'stone', stoneDk: 'stone', stoneLt: 'stone',
+})
 
 const _m = new THREE.Matrix4(), _q = new THREE.Quaternion(), _e = new THREE.Euler(), _p = new THREE.Vector3(), _s = new THREE.Vector3(), _c = new THREE.Color()
 const BOX = new THREE.BoxGeometry(1, 1, 1)
@@ -271,6 +276,23 @@ function bush() {
   ])
 }
 
+// tiny five-petal flower on a thin stem (used by the checkpoint bloom, see bloomData.js / Bloom.jsx); one colour variant per instanced mesh
+function flower(head, mid) {
+  const P = [
+    cyl(0.009, 0.012, 0.14, 4, C.leafDk, 0, 0.07, 0),
+    box(0.06, 0.008, 0.026, C.leaf, 0.03, 0.05, 0, 0.3, 0.6),
+    piece(ICO0, mid, [0, 0.152, 0], [0.024, 0.02, 0.024]),
+  ]
+  for (let i = 0; i < 5; i++) {
+    const a = (i * Math.PI * 2) / 5
+    P.push(piece(ICO0, head, [Math.cos(a) * 0.042, 0.146, Math.sin(a) * 0.042], [0.034, 0.014, 0.024], [0, -a, 0.25]))
+  }
+  return build(P)
+}
+const flowerPink = () => flower(grade('#ffc2d8', 'pink'), C.cream)
+const flowerYellow = () => flower(grade('#fff0a8', 'yellow'), '#f2c14e')
+const flowerWhite = () => flower('#ffffff', C.gold)
+
 /* ---------- buildings ---------- */
 // a square hip roof: 4-sided cone turned to sit flat on the walls
 const roof = (r, h, col, y) => piece(new THREE.CylinderGeometry(0.02, r, h, 4), col, [0, y, 0], [1, 1, 1], [0, Math.PI / 4, 0])
@@ -336,7 +358,7 @@ function islandRock() {
   return g
 }
 
-const BUILDERS = { islandRock, shrine, pagoda, portal, sakura, cubeTree, bonsai, bamboo, shrub, pine, mossRock, rail, hokora, stoneLantern, gardenLantern, woodLantern, torii, rock, tuft, bush }
+const BUILDERS = { islandRock, shrine, pagoda, portal, sakura, cubeTree, bonsai, bamboo, shrub, pine, mossRock, rail, hokora, stoneLantern, gardenLantern, woodLantern, torii, rock, tuft, bush, flowerPink, flowerYellow, flowerWhite }
 
 // geometries are built lazily, once
 let _cache
